@@ -337,3 +337,63 @@ window.JSBridge.receive("cb_7890_xxxx", { id: 1, name: "张三" });
 ✅ **支持异步回调**，确保数据能正确返回给调用方。
 
 这样 `JSBridge` **双向通信** 就完整了！🚀🚀🚀
+
+## **1️⃣ 在 Vue 里使用**
+
+在 Vue 里，可以在 `onMounted` 时注册 H5 方法，确保它能被 Native 调用。
+
+### **📌 Vue 组合式 API**
+
+```vue
+<script setup>
+import { onMounted } from "vue";
+import JSBridge from "@/utils/JSBridge"; // 引入封装的 JSBridge
+
+onMounted(() => {
+  // 注册 H5 方法，提供给 Native 端调用
+  window.JSBridge.register("getUser", (data, callback) => {
+    console.log("Native 调用 H5 getUser 方法，参数:", data);
+    setTimeout(() => {
+      callback({
+        userId: 12345,
+        nickname: "张三",
+        token: "abcd1234xyz",
+      });
+    }, 500);
+  });
+});
+</script>
+```
+
+------
+
+## **2️⃣ 在 React 里使用**
+
+在 React 里，使用 `useEffect` 来注册方法，确保它在组件挂载时生效。
+
+### **📌 React 版**
+
+```javascript
+import { useEffect } from "react";
+import JSBridge from "@/utils/JSBridge"; // 引入封装的 JSBridge
+
+const App = () => {
+  useEffect(() => {
+    // 注册 H5 方法，提供给 Native 端调用
+    window.JSBridge.register("getUser", (data, callback) => {
+      console.log("Native 调用 H5 getUser 方法，参数:", data);
+      setTimeout(() => {
+        callback({
+          userId: 12345,
+          nickname: "张三",
+          token: "abcd1234xyz",
+        });
+      }, 500);
+    });
+  }, []);
+
+  return <div>H5 页面</div>;
+};
+
+export default App;
+```
