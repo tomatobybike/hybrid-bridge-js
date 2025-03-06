@@ -81,31 +81,123 @@ class JSBridgeInterface {
 
 ```js
 const JSBridge = {
-  callbacks: {},
+  _callbacks: {},
+  _handlers: {}, // 存储 H5 注册的方法
+  _timeout: 5000, // 超时时间（ms）
 
   invoke(method, data = {}) {
     return new Promise((resolve, reject) => {
-      const callbackId = "cb_" + Date.now(); // 生成唯一的 callbackId
-      this.callbacks[callbackId] = { resolve, reject };
+      if (typeof method !== "string") {
+        reject(new Error("Method name must be a string"));
+        return;
+      }
 
-      // 兼容 iOS 和 Android
-      if (window.webkit && window.webkit.messageHandlers[method]) {
-        window.webkit.messageHandlers[method].postMessage({ callbackId, ...data });
-      } else if (window.AndroidBridge && window.AndroidBridge[method]) {
-        window.AndroidBridge[method](JSON.stringify({ callbackId, ...data }));
-      } else {
-        reject(new Error(`Native 未实现 ${method}`));
+      // 生成唯一 callbackId
+      const callbackId = `cb_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+
+      // 设定超时机制
+      const timeoutTimer = setTimeout(() => {
+        if (JSBridge._callbacks[callbackId]) {
+          reject(new Error(`Native method ${method} timeout`));
+          delete JSBridge._callbacks[callbackId];
+        }
+      }, JSBridge._timeout);
+
+      // 存储回调
+      JSBridge._callbacks[callbackId] = (result, error) => {
+        clearTimeout(timeoutTimer); // 清除超时计时器
+        if (error) {
+          reject(new Error(error));
+        } else {
+          resolve(result);
+        }
+        delete JSBridge._callbacks[callbackId];
+      };
+
+      const message = { method, data, callbackId };
+
+      try {
+        if (window.webkit?.messageHandlers?.[method]) {
+          // iOS 端
+          window.webkit.messageHandlers[method].postMessage(message);
+        } else if (window.AndroidBridge?.[method]) {
+          // Android 端
+          window.AndroidBridge[method](JSON.stringify(message));
+        } else {
+          reject(new Error(`Native method ${method} is not available`));
+        }
+      } catch (err) {
+        reject(new Error(`JSBridge invoke error: ${err.message}`));
       }
     });
   },
 
-  receive(callbackId, result) {
-    if (this.callbacks[callbackId]) {
-      this.callbacks[callbackId].resolve(result);
-      delete this.callbacks[callbackId]; // 清理 callback
+  receive(callbackId, result, error = null) {
+    if (JSBridge._callbacks[callbackId]) {
+      JSBridge._callbacks[callbackId](result, error);
+    } else {
+      console.warn(`JSBridge receive warning: callbackId ${callbackId} is expired or invalid`);
+    }
+  },
+
+  /**
+   * 注册 H5 方法，让 Native 端可以调用
+   * @param {string} method 方法名
+   * @param {Function} handler 处理函数 (data, callback)
+   */
+  register(method, handler) {
+    if (typeof method !== "string" || typeof handler !== "function") {
+      console.error("JSBridge.register 参数错误");
+      return;
+    }
+    JSBridge._handlers[method] = handler;
+  },
+
+  /**
+   * 供 Native 端调用 H5 方法
+   * @param {string} method 方法名
+   * @param {object} data 传递的参数
+   * @param {string} callbackId Native 端传递的回调 ID
+   */
+  call(method, data = {}, callbackId = null) {
+    if (JSBridge._handlers[method]) {
+      try {
+        JSBridge._handlers[method](data, (result) => {
+          if (callbackId) {
+            // H5 处理完后，回传给 Native
+            JSBridge._sendToNative(callbackId, result);
+          }
+        });
+      } catch (err) {
+        console.error(`JSBridge call error: ${err.message}`);
+      }
+    } else {
+      console.warn(`JSBridge call warning: H5 method ${method} is not registered`);
+    }
+  },
+
+  /**
+   * H5 处理完后，回传给 Native
+   * @param {string} callbackId Native 传递的 callbackId
+   * @param {any} result 返回给 Native 的数据
+   */
+  _sendToNative(callbackId, result) {
+    try {
+      if (window.webkit?.messageHandlers?.receiveFromH5) {
+        // iOS 端
+        window.webkit.messageHandlers.receiveFromH5.postMessage({ callbackId, result });
+      } else if (window.AndroidBridge?.receiveFromH5) {
+        // Android 端
+        window.AndroidBridge.receiveFromH5(JSON.stringify({ callbackId, result }));
+      } else {
+        console.warn("JSBridge: No receiveFromH5 method found in Native");
+      }
+    } catch (err) {
+      console.error(`JSBridge _sendToNative error: ${err.message}`);
     }
   }
 };
+
 ```
 
 ------
@@ -184,3 +276,64 @@ webView.evaluateJavaScript("JSBridge.receive('cb_1698742391', 'abcdef123456')", 
 String jsCode = "JSBridge.receive('cb_1698742391', 'abcdef123456')";
 webView.post(() -> webView.evaluateJavascript(jsCode, null));
 ```
+
+
+
+## **💡 使用示例**
+
+### **🌍 1. H5 调用 Native**
+
+```js
+JSBridge.invoke("getAccessToken")
+  .then((token) => console.log("H5 收到 token:", token))
+  .catch((err) => console.error("H5 调用失败:", err.message));
+```
+
+#### **👉 Native 端应该这样响应**
+
+```js
+
+
+window.JSBridge.receive("cb_123456_xxxx", "abc123");
+```
+
+------
+
+### **📲 2. H5 注册 `getUser` 方法，让 Native 可以调用**
+
+```js
+JSBridge.register("getUser", (data, callback) => {
+  console.log("Native 调用了 getUser，参数:", data);
+  const user = { id: 1, name: "张三" };
+  callback(user); // 返回数据给 Native
+});
+```
+
+#### **👉 Native 端应该这样调用**
+
+```js
+
+
+window.JSBridge.call("getUser", { userId: 1 }, "cb_7890_xxxx");
+```
+
+------
+
+### **🚀 3. Native 端接收 H5 处理后的结果**
+
+H5 处理完 `getUser`，会返回 `user` 对象，Native 端会收到：
+
+```js
+
+window.JSBridge.receive("cb_7890_xxxx", { id: 1, name: "张三" });
+```
+
+------
+
+## **🔥 结论**
+
+✅ **H5 -> Native** 通过 `invoke()` 发送请求，Native 用 `receive()` 接收。
+✅ **Native -> H5** 通过 `call()` 触发 H5 注册的方法，H5 处理完用 `_sendToNative()` 反馈结果。
+✅ **支持异步回调**，确保数据能正确返回给调用方。
+
+这样 `JSBridge` **双向通信** 就完整了！🚀🚀🚀
