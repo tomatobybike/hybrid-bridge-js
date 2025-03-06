@@ -154,6 +154,12 @@ JSBridge.invoke("getAccessToken")
 #### **📌 H5 端调用 `logout`**
 
 ```js
+
+// Native 端调用这个方法，返回数据给 H5
+window.JSBridge = JSBridge;
+
+
+
 JSBridge.invoke("logout")
   .then(() => {
     console.log("退出成功");
