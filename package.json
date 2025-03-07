@@ -1,14 +1,20 @@
 {
   "name": "hybrid-bridge-js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A JavaScript bridge for communication between Web and Native (iOS/Android)",
   "main": "dist/bridge.js",
   "module": "dist/bridge.esm.js",
+  "unpkg": "dist/bridge.js",
+  "jsdelivr": "dist/bridge.js",
+  "engines": {
+    "browser": ">=0.1.0"
+  },
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "rollup -c",
+    "release": "standard-version patch",
     "prepublish": "yarn build"
   },
   "keywords": [
@@ -28,6 +34,7 @@
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-terser": "^0.4.4",
-    "rollup": "^4.34.9"
+    "rollup": "^4.34.9",
+    "standard-version": "^9.5.0"
   }
 }
