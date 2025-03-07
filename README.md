@@ -1,3 +1,45 @@
+# tom-jsbridge
+
+一个用于 Web 和原生应用（iOS/Android）之间通信的 JavaScript 桥接库。
+
+## 安装
+
+```bash
+yarn add tom-jsbridge
+```
+## 使用方法
+
+```js
+import JSBridge from 'tom-jsbridge';
+
+// 调用原生方法
+JSBridge.invoke('nativeMethod', { param: 'value' })
+  .then(result => {
+    console.log('Native result:', result);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+
+// 注册 H5 方法供原生调用
+JSBridge.register('webMethod', (data, callback) => {
+  console.log('Received from native:', data);
+  callback({ success: true });
+});
+```
+# API
+invoke(method: string, data?: object): Promise
+调用原生方法。
+
+register(method: string, handler: Function): void
+注册 H5 方法供原生调用。
+
+receive(callbackId: string, result: any, error?: string): void
+接收原生方法的回调结果。
+
+call(method: string, data?: object, callbackId?: string): void
+
+
 ## **📌 详细流程**
 
 H5 调用 `getAccessToken`，然后 Native 处理并返回结果的完整流程如下：

@@ -1,0 +1,33 @@
+{
+  "name": "hybrid-bridge-js",
+  "version": "1.0.0",
+  "description": "A JavaScript bridge for communication between Web and Native (iOS/Android)",
+  "main": "dist/bridge.js",
+  "module": "dist/bridge.esm.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "prepublish": "yarn build"
+  },
+  "keywords": [
+    "jsbridge",
+    "hybrid",
+    "ios",
+    "android",
+    "webview"
+  ],
+  "author": "Tom <tomatobybike@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomatobybike/hybrid-bridge-js.git"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.34.9"
+  }
+}
