@@ -8,20 +8,20 @@
   "unpkg": "dist/bridge.js",
   "jsdelivr": "dist/bridge.js",
   "engines": {
-    "browser": ">=0.1.0"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "rollup -c",
-    "prepare": "yarn build",
+    "prepare": "husky && husky install",
     "prepublishOnly": "yarn lint && yarn build",
     "release:patch": "yarn build && standard-version --release-as patch",
     "release:minor": "yarn build && standard-version --release-as minor",
     "release:major": "yarn build && standard-version --release-as major",
     "lint": "eslint src --ext .js,.mjs",
     "lint:fix": "eslint src --ext .js,.mjs --fix",
+    "publish": "git push --follow-tags origin main && yarn publish",
     "format": "prettier --write \"src/**/*.{js,mjs}\""
   },
   "keywords": [
@@ -55,8 +55,16 @@
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.2",
     "eslint-plugin-prettier": "^5.2.3",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.4.3",
     "prettier": "^3.5.3",
     "rollup": "^4.34.9",
     "standard-version": "^9.5.0"
+  },
+  "lint-staged": {
+    "src/**/*.{js,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }
