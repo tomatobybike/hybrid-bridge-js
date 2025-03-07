@@ -1,5 +1,8 @@
 {
-  "name": "hybrid-bridge-js",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "name": "@tomatobybike/hybrid-bridge-js",
   "version": "1.0.1",
   "description": "A JavaScript bridge for communication between Web and Native (iOS/Android)",
   "main": "dist/bridge.js",
@@ -22,7 +25,7 @@
     "release:major": "yarn build && standard-version --release-as major",
     "lint": "eslint src --ext .js,.mjs",
     "lint:fix": "eslint src --ext .js,.mjs --fix",
-    "publish": "git push --follow-tags origin main && yarn publish",
+    "publish": "npm publish",
     "format": "prettier --write \"src/**/*.{js,mjs}\""
   },
   "keywords": [
