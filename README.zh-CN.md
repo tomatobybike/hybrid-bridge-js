@@ -1,84 +1,95 @@
 # hybrid-bridge-js
 
-English | [简体中文](./README.zh-CN.md)
-A JavaScript bridge library for communication between Web and Native (iOS/Android) applications.
+一个用于 Web 和原生应用（iOS/Android）之间通信的 JavaScript 桥接库。
 
-## Installation
+[English](./README.md) | 简体中文
+
+## 安装
 
 ```bash
 yarn add hybrid-bridge-js
 ```
 
-# Usage
+## 使用方法
 
-```js
-import JSBridge from 'hybrid-bridge-js';
+```javascript
+import JSBridge from 'hybrid-bridge-js'
 
-// Call Native method
+// 调用原生方法
 JSBridge.invoke('nativeMethod', { param: 'value' })
-  .then(result => {
-    console.log('Native result:', result);
+  .then((result) => {
+    console.log('Native 返回结果:', result)
   })
-  .catch(error => {
-    console.error('Error:', error);
-  });
+  .catch((error) => {
+    console.error('错误:', error)
+  })
 
-// Register H5 method for Native calls
+// 注册 H5 方法供原生调用
 JSBridge.register('webMethod', (data, callback) => {
-  console.log('Received from native:', data);
-  callback({ success: true });
-});
+  console.log('收到来自原生的数据:', data)
+  callback({ success: true })
+})
 ```
 
-## API Reference
+## API 文档
+
 ### JSBridge.invoke(method: string, data?: object): Promise
-Call a native method.
+
+调用原生方法。
 
 ### JSBridge.register(method: string, handler: Function): void
-Register an H5 method for native calls.
+
+注册 H5 方法供原生调用。
 
 ### JSBridge.receive(callbackId: string, result: any, error?: string): void
-Receive callback results from native methods.
+
+接收原生方法的回调结果。
 
 ### JSBridge.call(method: string, data?: object, callbackId?: string): void
-For native to call registered H5 methods.
 
-## Framework Integration
+供原生调用已注册的 H5 方法。
+
+## 框架集成
+
 ### Vue.js
 
-```js
-import { onMounted } from 'vue';
-import JSBridge from 'hybrid-bridge-js';
+```javascript
+import { onMounted } from 'vue'
+import JSBridge from 'hybrid-bridge-js'
 
 onMounted(() => {
   JSBridge.register('getUser', (data, callback) => {
-    console.log('Native calls H5 getUser method, params:', data);
+    console.log('Native 调用 H5 getUser 方法，参数:', data)
     callback({
       userId: 12345,
-      nickname: 'John',
-      token: 'abcd1234xyz',
-    });
-  });
-});
+      nickname: '张三',
+      token: 'abcd1234xyz'
+    })
+  })
+})
 ```
 
 ### React
 
-```js
-import { useEffect } from 'react';
-import JSBridge from 'hybrid-bridge-js';
+```javascript
+import { useEffect } from 'react'
+import JSBridge from 'hybrid-bridge-js'
 
 useEffect(() => {
   JSBridge.register('getUser', (data, callback) => {
-    console.log('Native calls H5 getUser method, params:', data);
+    console.log('Native 调用 H5 getUser 方法，参数:', data)
     callback({
       userId: 12345,
-      nickname: 'John',
-      token: 'abcd1234xyz',
-    });
-  });
-}, []);
+      nickname: '张三',
+      token: 'abcd1234xyz'
+    })
+  })
+}, [])
 ```
+
+## 原生端实现示例
+
+### iOS (Swift)
 
 ```swift
 class WebViewController: UIViewController, WKScriptMessageHandler {
@@ -91,9 +102,10 @@ class WebViewController: UIViewController, WKScriptMessageHandler {
     }
 }
 ```
+
 ### Android (Java/Kotlin)
 
-```javs
+```java
 class JSBridgeInterface {
     @JavascriptInterface
     public void getAccessToken(String json) {
@@ -109,3 +121,7 @@ class JSBridgeInterface {
     }
 }
 ```
+
+## 开源协议
+
+MIT
