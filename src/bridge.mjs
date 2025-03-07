@@ -5,8 +5,8 @@ const JSBridge = {
 
   invoke(method, data = {}) {
     return new Promise((resolve, reject) => {
-      if (typeof method !== "string") {
-        reject(new Error("Method name must be a string"));
+      if (typeof method !== 'string') {
+        reject(new Error('Method name must be a string'));
         return;
       }
 
@@ -64,8 +64,8 @@ const JSBridge = {
    * @param {Function} handler 处理函数 (data, callback)
    */
   register(method, handler) {
-    if (typeof method !== "string" || typeof handler !== "function") {
-      console.error("JSBridge.register 参数错误");
+    if (typeof method !== 'string' || typeof handler !== 'function') {
+      console.error('JSBridge.register 参数错误');
       return;
     }
     JSBridge._handlers[method] = handler;
@@ -108,14 +108,12 @@ const JSBridge = {
         // Android 端
         window.AndroidBridge.receiveFromH5(JSON.stringify({ callbackId, result }));
       } else {
-        console.warn("JSBridge: No receiveFromH5 method found in Native");
+        console.warn('JSBridge: No receiveFromH5 method found in Native');
       }
     } catch (err) {
       console.error(`JSBridge _sendToNative error: ${err.message}`);
     }
-  }
+  },
 };
 
-// 挂载到 window 对象，供 Native 直接调用
-window.JSBridge = JSBridge;
 export default JSBridge;
