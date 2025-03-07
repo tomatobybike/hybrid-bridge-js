@@ -1,10 +1,10 @@
 {
   "name": "hybrid-bridge-js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A JavaScript bridge for communication between Web and Native (iOS/Android)",
   "main": "dist/bridge.js",
   "module": "dist/bridge.esm.js",
-	"type": "module",
+  "type": "module",
   "unpkg": "dist/bridge.js",
   "jsdelivr": "dist/bridge.js",
   "engines": {
