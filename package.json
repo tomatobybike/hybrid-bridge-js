@@ -7,8 +7,7 @@
   "type": "module",
   "unpkg": "dist/bridge.js",
   "jsdelivr": "dist/bridge.js",
-  "engines": {
-  },
+  "engines": {},
   "files": [
     "dist"
   ],
@@ -52,8 +51,10 @@
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-terser": "^0.4.4",
-    "eslint": "^9.21.0",
+    "eslint": "^8.56.0",
+    "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^10.0.2",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.3",
     "husky": "^8.0.0",
     "lint-staged": "^15.4.3",

@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 const JSBridge = {
   _callbacks: {},
   _handlers: {}, // 存储 H5 注册的方法
