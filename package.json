@@ -15,8 +15,11 @@
   ],
   "scripts": {
     "build": "rollup -c",
-    "release": "standard-version patch",
-    "prepublish": "yarn build",
+    "prepare": "yarn build",
+    "prepublishOnly": "yarn lint && yarn build",
+    "release:patch": "yarn build && standard-version --release-as patch",
+    "release:minor": "yarn build && standard-version --release-as minor",
+    "release:major": "yarn build && standard-version --release-as major",
     "lint": "eslint src --ext .js,.mjs",
     "lint:fix": "eslint src --ext .js,.mjs --fix",
     "format": "prettier --write \"src/**/*.{js,mjs}\""
